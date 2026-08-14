@@ -1,24 +1,80 @@
 import type { Metadata } from "next";
-import { siteConfig } from "./site";
+import { siteConfig } from "@/lib/site";
 
-type SEOInput = { title:string; description:string; path:string; keywords?:string[] };
+type SEOOptions = {
+  title: string;
+  description: string;
+  path?: string;
+  keywords?: string[];
+  image?: string;
+};
 
-function optimizeDescription(description:string) {
-  let value=description.trim().replace(/\s+/g," ");
-  if(value.length>160) value=value.slice(0,157).replace(/\s+\S*$/,"")+"...";
-  const ctas=[" Contact Corefix Technologies today."," Request a project consultation today."," Contact our team for a project consultation."];
-  let i=0;
-  while(value.length<150 && i<ctas.length) value+=ctas[i++];
-  if(value.length>160) value=value.slice(0,157).replace(/\s+\S*$/,"")+"...";
-  return value;
-}
-export function createMetadata({title,description,path,keywords=[]}:SEOInput):Metadata {
-  const optimizedDescription=optimizeDescription(description), url=`${siteConfig.url}${path}`;
+export function createMetadata({
+  title,
+  description,
+  path = "/",
+  keywords = [],
+  image = "/og-image.svg",
+}: SEOOptions): Metadata {
+  const canonicalUrl = `${siteConfig.url}${path}`;
+
   return {
-    title,description:optimizedDescription,keywords,metadataBase:new URL(siteConfig.url),
-    alternates:{canonical:url},
-    openGraph:{type:"website",locale:"en_IN",url,siteName:siteConfig.name,title,description:optimizedDescription,images:[{url:"/og-image.svg",width:1200,height:630,alt:"Corefix Technologies LLP"}]},
-    twitter:{card:"summary_large_image",title,description:optimizedDescription,images:["/og-image.svg"]},
-    robots:{index:true,follow:true,maxImagePreview:"large",maxSnippet:-1,maxVideoPreview:-1}
+    title,
+    description,
+
+    keywords,
+
+    metadataBase: new URL(siteConfig.url),
+
+    alternates: {
+      canonical: canonicalUrl,
+    },
+
+    robots: {
+      index: true,
+      follow: true,
+
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
+    },
+
+    openGraph: {
+      type: "website",
+      locale: "en_IN",
+      siteName: siteConfig.name,
+      title,
+      description,
+      url: canonicalUrl,
+
+      images: [
+        {
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: `${title} | ${siteConfig.name}`,
+        },
+      ],
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+
+    authors: [
+      {
+        name: siteConfig.name,
+      },
+    ],
+
+    creator: siteConfig.name,
+    publisher: siteConfig.name,
   };
 }
