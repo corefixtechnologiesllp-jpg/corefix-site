@@ -1,0 +1,1 @@
+Add the final Corefix logo here as: corefix-logo.png (recommended transparent PNG, 760x216 px or similar wide ratio).
